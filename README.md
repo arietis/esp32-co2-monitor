@@ -6,6 +6,7 @@ A Rust-based air quality monitoring system using ESP32 microcontroller, SCD41 CO
 
 - Measures CO2, temperature, and humidity using Sensirion SCD41 sensor
 - Displays readings on a SSD1306 OLED display
+- Broadcasts readings over BLE (GATT server)
 - Written in Rust using esp-idf framework
 - Periodic measurements with configurable interval
 - Error handling and display
@@ -43,6 +44,17 @@ The default measurement interval is 5 seconds. You can modify this in `src/main.
 ```rust
 const MEASUREMENT_INTERVAL_MS: u32 = 5000;
 ```
+
+## BLE
+
+The firmware exposes sensor readings over BLE using a custom GATT service:
+
+- Device name: `ESP32-CO2`
+- Service UUID: `c892f08b-0502-49a6-8c52-b959aa997e54`
+- Characteristics:
+  - CO2: `00002b8c-0000-1000-8000-00805f9b34fb`
+  - Temperature: `00002a6e-0000-1000-8000-00805f9b34fb`
+  - Humidity: `00002a6f-0000-1000-8000-00805f9b34fb`
 
 ## License
 

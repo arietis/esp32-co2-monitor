@@ -1,6 +1,6 @@
-# ESP32 CO2 Monitor
+# ESP32-C3 CO2 Monitor
 
-A Rust-based air quality monitoring system using ESP32 microcontroller, SCD41 CO2 sensor, and SSD1306 OLED display.
+A Rust-based air quality monitoring system using ESP32-C3 microcontroller, SCD41 CO2 sensor, and SSD1306 OLED display.
 
 ## Features
 
@@ -10,15 +10,16 @@ A Rust-based air quality monitoring system using ESP32 microcontroller, SCD41 CO
 - Written in Rust using esp-idf framework
 - Periodic measurements with configurable interval
 - Error handling and display
+- Automatic disabling of the onboard LED (GPIO 8) to prevent interference
 
 ## Hardware Requirements
 
-- ESP32 development board
+- ESP32-C3 development board (e.g., ESP32-C3 DevKitM-1)
 - Sensirion SCD41 CO2 sensor
 - SSD1306 OLED display (128x64)
 - I2C connections:
-  - SDA: GPIO8
-  - SCL: GPIO9
+  - SDA: GPIO4
+  - SCL: GPIO5
 
 ## Building and Flashing
 

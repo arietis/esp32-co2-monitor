@@ -36,13 +36,18 @@ impl<'a> DeviceManager<'a> {
 
         let config = I2cConfig::default().baudrate(Hertz(100000));
 
-        let sda = peripherals.pins.gpio8;
-
-        let scl = peripherals.pins.gpio9;
+        let mut led = esp_idf_svc::hal::gpio::PinDriver::output(peripherals.pins.gpio8)?;
+        led.set_low()?;
+        std::mem::forget(led);
 
         let i2c = Rc::new(RefCell::new(
-            I2cDriver::new(peripherals.i2c0, sda, scl, &config)
-                .map_err(|e| AppError::I2cError(format!("Failed to initialize I2C: {:?}", e)))?,
+            I2cDriver::new(
+                peripherals.i2c0,
+                peripherals.pins.gpio4,
+                peripherals.pins.gpio5,
+                &config,
+            )
+            .map_err(|e| AppError::I2cError(format!("Failed to initialize I2C: {:?}", e)))?,
         ));
 
         // Initialize display

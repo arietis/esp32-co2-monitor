@@ -1,6 +1,7 @@
 use crate::error::AppError;
 use esp_idf_svc::hal::{delay::FreeRtos, i2c::I2cDriver};
 use log::info;
+use scd41_core::scd41::parse_measurement;
 use std::{cell::RefCell, rc::Rc};
 
 /// Command to read measurement.
@@ -77,25 +78,18 @@ impl<'a> Scd41Sensor<'a> {
             ))
         })?;
 
-        if !verify_crc(&buffer) {
-            return Err(AppError::SensorError(format!(
-                "CRC check failed for measurement data from sensor at address 0x{:02x}",
+        let measurement = parse_measurement(&buffer).map_err(|e| {
+            AppError::SensorError(format!(
+                "Failed to parse measurement data from sensor at address 0x{:02x}: {e}",
                 SCD41_ADDRESS
-            )));
-        }
+            ))
+        })?;
 
-        let co2 = u16::from_be_bytes([buffer[0], buffer[1]]);
-        let temperature =
-            -45.0 + 175.0 * u16::from_be_bytes([buffer[3], buffer[4]]) as f32 / 65535.0;
-        let humidity = 100.0 * u16::from_be_bytes([buffer[6], buffer[7]]) as f32 / 65535.0;
-
-        if co2 == 0 && temperature == 0.0 && humidity == 0.0 {
-            return Err(AppError::SensorError(
-                "Sensor returned all zero values, likely not ready.".to_string(),
-            ));
-        }
-
-        Ok((co2, temperature, humidity))
+        Ok((
+            measurement.co2_ppm,
+            measurement.temperature_c,
+            measurement.humidity_percent,
+        ))
     }
 
     /// Send a command to the sensor.
@@ -124,11 +118,4 @@ impl<'a> Drop for Scd41Sensor<'a> {
         // Try to stop measurements when the sensor is dropped
         let _ = self.stop_periodic_measurement();
     }
-}
-
-/// Verify the CRC of the data.
-fn verify_crc(_data: &[u8]) -> bool {
-    // CRC verification logic here
-    // For now, return true as placeholder
-    true
 }

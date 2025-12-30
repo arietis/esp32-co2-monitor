@@ -1,0 +1,9 @@
+[package]
+edition = "2021"
+name = "scd41-core"
+version = "0.1.0"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
